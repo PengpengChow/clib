@@ -12,17 +12,27 @@ struct list_node {
 
 typedef struct list_node LNODE;
 
-struct list_header {
+struct list {
 	LNODE* head;
 	LNODE* tail;
+	int size;
 };
-typedef struct list_header LHEADER;
+typedef struct list LIST;
 
-extern void list_init(LHEADER*);
-extern LNODE* list_rpush(LHEADER*, void*);
-extern LNODE* list_lpush(LHEADER*, void*);
-extern void* list_rpop(LHEADER*);
-extern void* list_lpop(LHEADER*);
-extern void list_free(LHEADER*, void (*)(void*));
+extern void list_init(LIST*);
+extern int list_size(LIST*);
+extern void* list_getdata(LNODE*);
+
+extern LNODE* list_rpush(LIST*, void*);
+extern LNODE* list_lpush(LIST*, void*);
+extern void* list_rpop(LIST*);
+extern void* list_lpop(LIST*);
+extern void list_free(LIST*, void (*)(void*));
+extern int list_isempty(LIST*);
+extern int list_locate(LIST*, LNODE*);
+extern LNODE* list_find(LIST*, void* pdata, int (*)(void*, void*));
+
+extern LNODE* list_insert(LIST*, void*, int);
+extern void* list_remove(LIST*, int);
 
 #endif

@@ -1,108 +1,210 @@
 #include <garlic/list.h>
 
-void list_init(LHEADER* header) {
-	bzero(header, sizeof(LHEADER));
+void list_init(LIST* list) {
+	bzero(list, sizeof(LIST));
 }
 
-LNODE* list_rpush(LHEADER* header, void* pdata) {
+int list_size(LIST* list) {
+	return list->size;
+}
+
+LNODE* list_rpush(LIST* list, void* pdata) {
 	LNODE* pnode = NULL;
 
 	pnode = calloc(1, sizeof(LNODE));
 	pnode->pdata = pdata;
 
-	if (header->head == NULL)
-		header->head = pnode;
+	if (list->head == NULL)
+		list->head = pnode;
 
-	if (header->tail != NULL)
-		header->tail->pnext = pnode;
-	header->tail = pnode;
+	if (list->tail != NULL)
+		list->tail->pnext = pnode;
+	list->tail = pnode;
+	list->size ++;
 
 	return pnode;
 }
 
-LNODE* list_lpush(LHEADER* header, void* pdata) {
+LNODE* list_lpush(LIST* list, void* pdata) {
 	LNODE* pnode = NULL;
 
 	pnode = calloc(1, sizeof(LNODE));
 	pnode->pdata = pdata;
 
-	if (header->tail == NULL)
-		header->tail = pnode;
+	if (list->tail == NULL)
+		list->tail = pnode;
 
-	pnode->pnext = header->head;
-	header->head = pnode;
+	pnode->pnext = list->head;
+	list->head = pnode;
+	list->size ++;
 
 	return pnode;
 }
 
-void* list_rpop(LHEADER* header) {
+void* list_rpop(LIST* list) {
 	LNODE* node = NULL;
 	void* pdata = NULL;
-	node = header->head;
+	node = list->head;
 
-	if (header->tail == NULL)
+	if (list->tail == NULL)
 		return NULL;
 
-	if (node == header->tail) {
+	if (node == list->tail) {
 		pdata = node->pdata;
 		free(node);
-		header->head = header->tail = NULL;
+		list->head = list->tail = NULL;
 		return pdata;
 	}
 	
-	while (node->pnext != header->tail) {
+	while (node->pnext != list->tail) {
 		node = node->pnext;
 	}
 	pdata = node->pnext->pdata;
-	header->tail = node;
+	list->tail = node;
 
 	free(node->pnext);
 	node->pnext = NULL;
+	list->size --;
 	return pdata;
 } 
 
-void* list_lpop(LHEADER* header) {
+void* list_lpop(LIST* list) {
 	void* pdata = NULL;
 	LNODE* node = NULL;
 
-	if (header->head == NULL) return NULL;
+	if (list->head == NULL) return NULL;
 
-	if (header->head == header->tail) {
-		node = header->head;
+	if (list->head == list->tail) {
+		node = list->head;
 		pdata = node->pdata;
 		free(node);
-		header->head = header->tail = NULL;
+		list->head = list->tail = NULL;
 		return pdata;
 	}
 
-	pdata = header->head->pdata;
-	node = header->head;
-	header->head = node->pnext;
+	pdata = list->head->pdata;
+	node = list->head;
+	list->head = node->pnext;
 	free(node);
+
+	list->size --;
 
 	return pdata;
 }
 
-void list_free(LHEADER* header, void (*node_free)(void*)) {
+void list_free(LIST* list, void (*node_free)(void*)) {
 	LNODE* node = NULL;
 
-	while (header->head != NULL) {
-		node = header->head;
-		header->head = node->pnext;
+	while (list->head != NULL) {
+		node = list->head;
+		list->head = node->pnext;
 
 		if (node_free != NULL)
 			(*node_free) (node->pdata);
+		list->size --;
 
 		free(node);
 	}
 
-	header->tail = header->head;
+	list->tail = list->head;
 }
 
-void list_traver(LHEADER* header) {
+int list_isempty(LIST* list) {
+	return list->size == 0 ? 1 : 0;
+}
+
+LNODE* list_insert(LIST* list, void* pdata, int pos) {
+	LNODE* pnode = NULL;
+	int i = 0;
+	LNODE* p = NULL;
+	LNODE* pre = NULL;
+
+	if (pos == 0) {
+		return list_lpush(list, pdata);
+	}
+
+	if (pos >= list->size) {
+		return list_rpush(list, pdata);
+	}
+
+	pnode = calloc(1, sizeof(LNODE));
+	pnode->pdata = pdata;
+
+	if (list->head == NULL || list->tail == NULL) {
+		list->head = list->tail = pnode;
+		list->size ++;
+		return pnode;
+	}
+
+	for (pre = p = list->head; p != list->tail && i <= pos; p = p->pnext, i ++) {
+		pre = p;
+	}
+
+	pnode->pnext = pre->pnext;
+	pre->pnext = pnode;
+	list->size ++;
+
+	return pnode;
+}
+
+void* list_getdata(LNODE* node) {
+	if (node == NULL) return NULL;
+	return node->pdata;
+}
+
+int list_locate(LIST* list, LNODE* node) {
+	int i = 0;
+	LNODE* p = NULL;
+
+	if (node == NULL) return -1;
+
+	for (i=0, p=list->head; p != NULL; p = p->pnext, i ++) {
+		if (node == p) return i;
+	}
+
+	return -1;
+}
+
+LNODE* list_find(LIST* list, void* pdata, int (* comp)(void*, void*)) {
+	LNODE* p = NULL;
+
+	if (list == NULL) return NULL;
+
+	for (p=list->head; p != NULL; p = p->pnext) {
+		if (!(*comp)(p->pdata, pdata)) return p;
+	}
+
+	return NULL;
+}
+
+void* list_remove(LIST* list, int pos) {
+	LNODE* p = NULL;
+	LNODE* pre = NULL;
+	void* pdata = NULL;
+	int i = 0;
+
+	if (list == NULL) return NULL;
+	if (pos >= list->size - 1 || pos < 0) return NULL;
+
+	if (pos == 0) return list_lpop(list);
+	if (pos == list->size-1) return list_rpop(list);
+
+	for (pre = p = list->head; p->pnext != list->tail && i <pos; p = p->pnext, i ++) {
+    pre = p;
+  }
+
+	pre->pnext = p->pnext;
+	pdata = p->pdata;
+
+	free(p);
+
+	return pdata;
+}
+
+void list_traver(LIST* list) {
 	LNODE* p = NULL;
 	int i = 0;
-	p = header->head;
+	p = list->head;
 	
 	while (p != NULL) {
 		printf("%d: [%s]\n", i ++, (char*) p->pdata);
@@ -110,8 +212,9 @@ void list_traver(LHEADER* header) {
 	}
 }
 
+/*
 int main (int argc, char** argv) {
-	LHEADER header;
+	LIST header;
 	int i = 0;
 	list_init(&header);
 
@@ -152,3 +255,4 @@ int main (int argc, char** argv) {
 
 	return 0;
 }
+*/
