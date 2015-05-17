@@ -1,6 +1,6 @@
 #include <garlic/xtring.h>
 
-void* memcopy(void* src, long size) {
+void* strcopy(const char* src, long size) {
 	void* p = NULL;
 	p = calloc(size, 1);
 	memcpy(p, src, size);
@@ -8,7 +8,8 @@ void* memcopy(void* src, long size) {
 	return p;
 }
 
-unsigned char** split_char_orig(unsigned char* src, unsigned char needle, int* num) {
+#if 0
+unsigned char** split_char_orig(const char* src, unsigned char needle, int* num) {
 	char* p = NULL;
 	unsigned char** array = NULL;
 	int size = 0;
@@ -87,18 +88,19 @@ void split_str_orig_free(unsigned char** array, int num) {
 	free(array);
 	array = NULL;
 }
+#endif
 
-unsigned char** split_char_copy(unsigned char* src, unsigned char needle, int* num) {
+char** split_char(const char* src, char needle, int* num) {
 	char* p = NULL;
 	char* copy = NULL;
-	unsigned char** array = NULL;
+	char** array = NULL;
 	int size = 0;
 	int n = 0;
 	long copy_len = 0;
 
 	NULRETURNUL(src);
 
-	copy = memcopy(src, strlen(src) + 1);
+	copy = strcopy(src, strlen(src) + 1);
 
 	copy_len = strlen(copy);
 	size = (copy_len > BLOCK_SIZE ? copy_len : BLOCK_SIZE)*sizeof(char*);
@@ -121,7 +123,7 @@ unsigned char** split_char_copy(unsigned char* src, unsigned char needle, int* n
 	return array;
 }
 
-void split_char_copy_free(unsigned char** array, int num) {
+void split_char_free(char** array, int num) {
 	int i = 0;
 
 	if (array[0] != NULL) free(array[0]);
@@ -132,17 +134,17 @@ void split_char_copy_free(unsigned char** array, int num) {
 	array = NULL;
 }
 
-unsigned char** split_str_copy(unsigned char* src, char* needle, int* num) {
+char** split_str(const char* src, const char* needle, int* num) {
 	char* p = NULL;
 	char* copy = NULL;
-	unsigned char** array = NULL;
+	char** array = NULL;
 	int size = 0;
 	int n = 0;
 	long copy_len = 0;
 
 	NULRETURNUL(src);
 
-	copy = memcopy(src, strlen(src) + 1);
+	copy = strcopy(src, strlen(src) + 1);
 	copy_len = strlen(copy);
 	size = (copy_len > BLOCK_SIZE ? copy_len : BLOCK_SIZE)*sizeof(char*);
 	array = malloc(size);
@@ -164,7 +166,7 @@ unsigned char** split_str_copy(unsigned char* src, char* needle, int* num) {
 	return array;
 }
 
-void split_str_copy_free(unsigned char** array, int num) {
+void split_str_free(char** array, int num) {
 	int i = 0;
 
 	if (array[0] != NULL) free(array[0]);

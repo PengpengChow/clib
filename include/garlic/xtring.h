@@ -11,15 +11,17 @@
 
 #define BLOCK_SIZE 1024
 
+#if 0
 extern unsigned char** split_char_orig(unsigned char*, unsigned char, int*);
 extern void split_char_orgi_free(unsigned char**, int);
 extern unsigned char** split_str_orig(unsigned char*, char*, int*);
 extern void split_str_free_orig(unsigned char**, int num);
+#endif
 
-extern unsigned char** split_char_copy(unsigned char*, unsigned char, int*);
-extern void split_char_copy_free(unsigned char**, int num);
-extern unsigned char** split_str_copy(unsigned char*, char*, int*);
-extern void split_str_copy_free(unsigned char**, int);
+extern char** split_char(const char*, char, int*);
+extern void split_char_free(char**, int num);
+extern char** split_str(const char*, const char*, int*);
+extern void split_str_free(char**, int);
 
 extern char* rtrim(char*);
 extern char* ltrim(char*);

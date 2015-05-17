@@ -3,7 +3,7 @@ MAIN=main.o
 EXEC=main
 
 NAME=garlic
-GARLIC_OBJ=stack.o list.o xtring.o
+GARLIC_OBJ=stack.o list.o array.o xtring.o
 LIBNAME=${HOME}/lib/lib${NAME}.a
 
 GARLICLIB=${LIBNAME}

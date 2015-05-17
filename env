@@ -1,1 +1,1 @@
-export C_INCLUDE_PATH=${HOME}/clib/structure/include
+export C_INCLUDE_PATH=${HOME}/git/garlic/clib/include

@@ -35,4 +35,8 @@ extern LNODE* list_find(LIST*, void* pdata, int (*)(void*, void*));
 extern LNODE* list_insert(LIST*, void*, int);
 extern void* list_remove(LIST*, int);
 
+extern void list_sort_bubble(LIST*, int (*)(void*, void*));
+
+extern void list_traver(LIST*);
+
 #endif

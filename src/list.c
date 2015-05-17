@@ -201,6 +201,23 @@ void* list_remove(LIST* list, int pos) {
 	return pdata;
 }
 
+void list_sort_bubble(LIST* list, int (*comp) (void* data1, void* data2)) {
+	int len = 0, i = 0;
+	LNODE* node = NULL;
+	void* tmp = NULL;
+
+	for (len = list->size; len > 1; len --) {
+		for (i = 0, node = list->head; i < len - 1 && node->pnext != NULL;
+				i ++, node = node->pnext) {
+			if (comp(node->pdata, node->pnext->pdata) > 0) {
+				tmp = node->pdata;
+				node->pdata = node->pnext->pdata;
+				node->pnext->pdata = tmp;
+			}
+		}
+	}
+}
+
 void list_traver(LIST* list) {
 	LNODE* p = NULL;
 	int i = 0;
@@ -211,48 +228,3 @@ void list_traver(LIST* list) {
 		p = p->pnext;
 	}
 }
-
-/*
-int main (int argc, char** argv) {
-	LIST header;
-	int i = 0;
-	list_init(&header);
-
-	char* p = NULL;
-
-	for (i=0; i<10; i ++) {
-		p = calloc(20, 1);
-		sprintf(p, "this is %03d", i);
-		list_rpush(&header, p);
-	}
-
-	p = calloc(20, 1);
-	sprintf(p, "this is %03d", i ++);
-	list_lpush(&header, p);
-
-	p = calloc(20, 1);
-	sprintf(p, "this is %03d", i ++);
-	list_lpush(&header, p);
-
-	p = calloc(20, 1);
-	sprintf(p, "this is %03d", i ++);
-	list_lpush(&header, p);
-
-	p = calloc(20, 1);
-	sprintf(p, "this is %03d", i ++);
-	list_lpush(&header, p);
-
-	printf("rpop[%s]\n", list_rpop(&header));
-	printf("lpop[%s]\n", list_lpop(&header));
-
-	list_free(&header, free);
-
-	p = calloc(20, 1);
-	sprintf(p, "this is %03d", i ++);
-	list_lpush(&header, p);
-
-	list_traver(&header);
-
-	return 0;
-}
-*/
